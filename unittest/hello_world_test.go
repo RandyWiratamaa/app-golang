@@ -82,3 +82,41 @@ func BenchmarkHelloWorld(b *testing.B) {
 		HelloWorld("Randy")
 	}
 }
+
+func BenchmarkHelloWorldSub(b *testing.B) {
+	b.Run("Randy", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HelloWorld("Randy")
+		}
+	})
+	b.Run("Wiratama", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HelloWorld("Wiratama")
+		}
+	})
+}
+
+func BenchmarkTable(b *testing.B) {
+	// deklarasi variable
+	benchmarks := []struct {
+		name    string
+		request string
+	}{
+		{
+			name:    "Randy",
+			request: "Randy",
+		},
+		{
+			name:    "Wiratama",
+			request: "Wiratama",
+		},
+	}
+
+	for _, data := range benchmarks {
+		b.Run(data.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				HelloWorld(data.request)
+			}
+		})
+	}
+}
