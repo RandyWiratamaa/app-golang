@@ -32,3 +32,18 @@ go get github.com/stretchr/testify
   data <- channel
   ```
 
+## Golang Database Mysql
+
+### Menambah Module Database Driver (MySQL)
+```
+go get -u github.com/go-sql-driver/mysql
+```
+
+### Membuat koneksi ke Database MySQL
+```
+db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
+if err != nil {
+    panic(err)
+}
+defer db.Close()
+```
