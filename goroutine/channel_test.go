@@ -2,6 +2,7 @@ package goroutine
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -62,9 +63,8 @@ func TestMakeChannel(t *testing.T) {
 		channel <- "Randy Wiratama"
 	}()
 
-	// string Randy Wiratama dimasukkan ke dalam variable data
 	// mengambil data dari channel
-	data := <-channel
+	data := <-channel // string Randy Wiratama dimasukkan ke dalam variable data
 	fmt.Println(data)
 	close(channel)
 }
@@ -78,4 +78,75 @@ func TestBufferedChannel(t *testing.T) {
 	channel <- "Wiratama"
 
 	fmt.Println("Selesai")
+}
+
+func TestRangeChannel(t *testing.T) {
+	channel := make(chan string)
+
+	//Mengirim data atau channel
+	go func() {
+		for i := 0; i < 10; i++ {
+			channel <- "Perulangan ke " + strconv.Itoa(i)
+		}
+		close(channel)
+	}()
+
+	// Range pada saat menerima data
+	for data := range channel {
+		fmt.Println("Menerima data", data)
+	}
+
+	fmt.Println("Selesai")
+}
+
+func TestSelectChannel(t *testing.T) {
+	channel1 := make(chan string)
+	channel2 := make(chan string)
+	defer close(channel1)
+	defer close(channel2)
+
+	go GiveMeResponse(channel1)
+	go GiveMeResponse(channel2)
+
+	counter := 0
+	for {
+		select {
+		case data := <-channel1:
+			fmt.Println("Data dari channel ke 1", data)
+			counter++
+		case data := <-channel2:
+			fmt.Println("Data dari channel ke 2", data)
+			counter++
+		}
+		if counter == 2 {
+			break
+		}
+	}
+}
+
+func TestDefaultChannel(t *testing.T) {
+	channel1 := make(chan string)
+	channel2 := make(chan string)
+	defer close(channel1)
+	defer close(channel2)
+
+	go GiveMeResponse(channel1)
+	go GiveMeResponse(channel2)
+
+	counter := 0
+	for {
+		select {
+		case data := <-channel1:
+			fmt.Println("Data dari channel ke 1", data)
+			counter++
+		case data := <-channel2:
+			fmt.Println("Data dari channel ke 2", data)
+			counter++
+		default:
+			fmt.Println("Menunggu Data...")
+		}
+		if counter == 2 {
+			break
+		}
+	}
 }
