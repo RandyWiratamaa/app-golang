@@ -40,10 +40,24 @@ go get -u github.com/go-sql-driver/mysql
 ```
 
 ### Membuat koneksi ke Database MySQL
-```
+```go
 db, err := sql.Open("mysql", "user:password@tcp(host:port)/dbname")
 if err != nil {
     panic(err)
 }
 defer db.Close()
 ```
+
+### Query insert data
+```go
+ctx := context.Background()
+
+	query := "INSERT INTO category_products(id, category) VALUES('1', 'Celana Panjang')"
+	_, err := db.ExecContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Success insert New Category")
+```
+``ExecContext()`` digunakan untuk mengirim perintah SQL ke database.
