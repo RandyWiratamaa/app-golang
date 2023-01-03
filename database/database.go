@@ -13,6 +13,7 @@ func GetConnection() *sql.DB {
 		panic(err)
 	}
 
+	// Database Pooling
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
 	db.SetConnMaxIdleTime(5 * time.Minute)

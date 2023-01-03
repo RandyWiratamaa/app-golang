@@ -108,8 +108,8 @@ func TestSqlInjection(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	id := "1"
-	name := "Randy"
+	id := "1'; #"
+	name := "salah"
 
 	query := "SELECT name FROM customers WHERE id = '" + id +
 		"' AND name = '" + name + "' LIMIT 1"
@@ -133,4 +133,34 @@ func TestSqlInjection(t *testing.T) {
 		fmt.Println("Gagal Login")
 	}
 
+}
+
+func TestQueryWithParameter(t *testing.T) {
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	id := "1'; #"
+	name := "salah"
+
+	queryWithParameter := "SELECT name FROM customers WHERE id = ? AND name = ? LIMIT 1"
+
+	rows, err := db.QueryContext(ctx, queryWithParameter, id, name)
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	if rows.Next() {
+		var name string
+
+		err := rows.Scan(&name)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(name, "Sukses Login...")
+	} else {
+		fmt.Println("Gagal Login")
+	}
 }
