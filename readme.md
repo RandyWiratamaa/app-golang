@@ -61,3 +61,105 @@ ctx := context.Background()
 	fmt.Println("Success insert New Category")
 ```
 ``ExecContext()`` digunakan untuk mengirim perintah SQL ke database.
+
+### SQL Query with Parameter
+#### Query Select
+```go
+  ctx := context.Background()
+  username := "admin"
+  password := "admin"
+
+  sqlQuery := "SELECT name FROM customers WHERE username = ? AND password = ? LIMIT 1"
+
+  rows, err := db.QueryContext(ctx, queryWithParameter, id, name)
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+
+	if rows.Next() {
+		var name string
+
+		err := rows.Scan(&name)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(name, "Sukses Login...")
+	} else {
+		fmt.Println("Gagal Login")
+	}
+```
+
+#### Query Insert
+```go
+  db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	id := "2"
+	category := "New Category"
+
+	query := "INSERT INTO category_products(id, category) VALUES(?, ?)"
+	_, err := db.ExecContext(ctx, query, id, category)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Success insert New Category")
+```
+
+### Auto Increment
+- Untuk mendapatkan ID terakhir pada Table, kita dapat menggunakan function ``(Result)LastInsertId()``
+- ``Result`` adalah object yang dikembalikan ketika kita menggunakan function ``Exec``
+```go
+  db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	name := "Uniqlo"
+	price := 170000
+	query := "INSERT INTO products(name, price) VALUES (?, ?)"
+	result, err := db.ExecContext(ctx, query, name, price)
+	if err != nil {
+		panic(err)
+	}
+	insertId, err := result.LastInsertId()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Data has been Added")
+	fmt.Println("Last Insert ID : ", insertId)
+```
+
+### Prepare Statement
+```go
+  db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	query := "INSERT INTO products(name, price) VALUES (?, ?)"
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+
+	defer stmt.Close()
+
+	for i := 0 ; i < 10 ; i++ {
+		name := "Product" + strconv.Itoa(i)
+		price := 100000
+
+		result, err := stmt.ExecContext(ctx, name, price)
+		if err != nil {
+			panic(err)
+		}
+
+		id, err := result.LastInsertId()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Products ID = ", id)
+	}
+```
