@@ -71,7 +71,7 @@ ctx := context.Background()
 
   sqlQuery := "SELECT name FROM customers WHERE username = ? AND password = ? LIMIT 1"
 
-  rows, err := db.QueryContext(ctx, queryWithParameter, id, name)
+  rows, err := db.QueryContext(ctx, queryWithParameter, username, password)
 	if err != nil {
 		panic(err)
 	}
@@ -79,13 +79,13 @@ ctx := context.Background()
 	defer rows.Close()
 
 	if rows.Next() {
-		var name string
+		var username string
 
-		err := rows.Scan(&name)
+		err := rows.Scan(&username)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(name, "Sukses Login...")
+		fmt.Println(username, "Sukses Login...")
 	} else {
 		fmt.Println("Gagal Login")
 	}
