@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -162,5 +163,73 @@ func TestQueryWithParameter(t *testing.T) {
 		fmt.Println(name, "Sukses Login...")
 	} else {
 		fmt.Println("Gagal Login")
+	}
+}
+
+func TestExecWithParameter(t *testing.T) {
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	id := "2"
+	category := "Celana Pendek"
+
+	query := "INSERT INTO category_products(id, category) VALUES(?, ?)"
+	_, err := db.ExecContext(ctx, query, id, category)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Success insert New Category")
+}
+
+func TestAddProduct(t *testing.T) {
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	name := "Uniqlo"
+	price := 170000
+	query := "INSERT INTO products(name, price) VALUES (?, ?)"
+	result, err := db.ExecContext(ctx, query, name, price)
+	if err != nil {
+		panic(err)
+	}
+	insertId, err := result.LastInsertId()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Data has been Added")
+	fmt.Println("Last Insert ID : ", insertId)
+}
+
+func TestPrepareStatement(t *testing.T) {
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	query := "INSERT INTO products(name, price) VALUES (?, ?)"
+	stmt, err := db.PrepareContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+
+	defer stmt.Close()
+
+	for i := 0 ; i < 10 ; i++ {
+		name := "Product" + strconv.Itoa(i)
+		price := 100000
+
+		result, err := stmt.ExecContext(ctx, name, price)
+		if err != nil {
+			panic(err)
+		}
+
+		id, err := result.LastInsertId()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Products ID = ", id)
 	}
 }
